@@ -48,7 +48,7 @@ gss_identify_vintage <- function(data, col_gss = "gss_code", test_vintage = NULL
     gss_codes <- data
   }
 
-  timeline <- gss_timeline(gss_codes = gss_codes, plot = FALSE)
+  timeline <- gss_timeline(gss_codes = gss_codes, plot = NULL)
 
   # TODO Split the following into an internal function to allow for testing
   min_vintage <- max(timeline$created)
@@ -61,23 +61,22 @@ gss_identify_vintage <- function(data, col_gss = "gss_code", test_vintage = NULL
                 vintage_end = NA,
                 vintage_years = c(),
                 vintage_current = FALSE,
-                test_vintage = test_vintage,
+                test_vintage = ifelse(is.null(test_vintage), NA, test_vintage),
                 test_valid = ifelse(is.null(test_vintage), NA, FALSE))
     return(out)
   }
 
-  # Vintage years are dates of 31 December contained in the returned interval
-  vintage_year_start <- substr(min_vintage, 1, 4) %>% as.numeric()
-  vintage_year_end <- substr(max_vintage, 1, 4) %>% as.numeric()
-
-  vintage_years <- c()
-  for(yr in vintage_year_start:vintage_year_end) {
-    if(yr <= vintage_year_end) {
-      vintage_years <- c(vintage_years, yr)
-    }
+  # Vintage years are all instances of 31 December contained in the returned interval
+  vintage_year_start <- format(min_vintage, "%Y") %>% as.numeric()
+  vintage_year_end <- format(max_vintage, "%Y") %>% as.numeric()
+  if(format(max_vintage, "%m-%d") != "12-31") {
+    vintage_year_end = vintage_year_end - 1
   }
 
+  vintage_years <- vintage_year_start:vintage_year_end
+
   if(is.null(test_vintage)) {
+    test_vintage <- NA
     test_valid <- NA
   } else {
     test_valid <- (test_vintage >= min_vintage) && (test_vintage <= max_vintage)

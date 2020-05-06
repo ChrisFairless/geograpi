@@ -72,6 +72,7 @@ gss_lookup <- function(data,
   } else {
     gss_codes <- unique(data[[col_gss]])
   }
+
   gss_string <- paste0('"', paste0(gss_codes, collapse='", "'), '"')
 
   # Construct a SPARQL query
@@ -100,7 +101,8 @@ gss_lookup <- function(data,
   } else {
     # Otherwise get the creation and termination dates of all geographies (we'll filter later)
     sparql_query[2] <- paste(
-      'SELECT DISTINCT ?gss_code ?gss_name ?parent_code ?parent_name ?parent_startdate ?parent_enddate',
+      'SELECT DISTINCT ?gss_code ?gss_name ?parent_code ?parent_name ?resolution_abbreviation
+                       ?parent_startdate ?parent_enddate',
       'WHERE {',
         '?gss_uri within:within ?gss_parent ;',
                  'geog-def:officialname ?gss_name ;',
@@ -142,8 +144,8 @@ gss_lookup <- function(data,
   # Check all input gss codes were matched (before date filtering)
   ix <- gss_codes %in% response$gss_code
   if(!all(ix)) {
-    warning(paste(c("Not all GSS codes were found in the ONS database. Missing:",
-                    gss_codes[ix], collapse = " ")))
+    warning(paste(c("Not all GSS codes were found in the ONS database. \nMissing:",
+                    gss_codes[!ix], collapse = " ")))
   }
 
   # Filter to the right dates (if we didn't want the most recent data)
@@ -151,18 +153,37 @@ gss_lookup <- function(data,
     # Dates are returned in the format "<http://reference.data.gov.uk/id/day/2004-08-01>"
     response$parent_startdate <- .date_from_uri(response$parent_startdate, format = "date")
 
-    ix <- !is.null(response$parent_enddate)
-    response$parent_enddate[ix] <- .date_from_uri(response$parent_enddate[ix], format = "date")
+    iy <- !is.na(response$parent_enddate)
+    if(any(iy)) {
+      response$parent_enddate[iy] <- .date_from_uri(response$parent_enddate[iy], format = "string")
+    }
+    response$parent_enddate[!iy] <- Sys.Date() %>% format("%Y-%m-%d")
 
-    vintage <- as.Date(vintage)
+    response$parent_enddate <- as.Date(response$parent_enddate)
+
+    # vintage <- as.Date(vintage)
 
     # TODO maybe dtplyr would be helpful here
     response <- response %>%
-      filter(vintage > parent_startdate,
-             is.na(parent_enddate) | vintage < parent_enddate)
+      filter(vintage >= parent_startdate,
+             vintage <= parent_enddate)
+
+    iz <- gss_codes %in% response$gss_code
+    ix_excluded <- (ix & !iz)
+    if(any(ix_excluded)) {
+      warning(paste(c("Not all GSS codes were valid for vintage", format(vintage, "%Y-%m-%d"),
+                      "\nExcluded:", gss_codes[ix_excluded]), collapse = " "))
+    }
+
   } else {
     # TODO how do we label a vintage that's not the december of a year?
-    vintage <- Sys.Date() %>% as.character() %>% substr(start = 3, stop = 4)
+    vintage <- Sys.Date()
+  }
+  vintage_string <- format(vintage, "%y")
+
+  if(nrow(response) == 0) {
+    warning("No results found in gss_lookup, returning NULL")
+    return(NULL)
   }
 
   # Then, a whole load of pivoting to make a new column for each resolution in the returned hierarchy
@@ -175,7 +196,7 @@ gss_lookup <- function(data,
   response <- tidyr::pivot_wider(response,
                                  names_from = c("resolution_abbreviation", "type"),
                                  values_from = "value",
-                                 names_sep = vintage)
+                                 names_sep = vintage_string)
 
 
   if(is.data.frame(data)) {
@@ -185,7 +206,6 @@ gss_lookup <- function(data,
   }
 
   return(response)
-
 }
 
 
