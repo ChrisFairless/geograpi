@@ -2,6 +2,7 @@
 
 export(gss_identify_vintage)
 export(gss_lookup)
+export(gss_map)
 export(ons_sparql_prefixes)
 export(query_ons)
 import(SPARQL)

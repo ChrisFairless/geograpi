@@ -7,5 +7,6 @@ ons_sparql_prefixes <- function() {
     'PREFIX gss_uri:<http://statistics.data.gov.uk/def/statistical-entity#>',
     'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>',
     'PREFIX change: <http://statistics.data.gov.uk/def/boundary-change/>',
+    'PREFIX opengis: <http://www.opengis.net/ont/geosparql#>',
   sep = "\n")
 }

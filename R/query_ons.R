@@ -13,6 +13,9 @@
 #' @export
 
 query_ons <- function(query, ...) {
-  SPARQL::SPARQL(url = "http://statistics.data.gov.uk/sparql",
-                 query = query, ...)$results
+  tryCatch({
+    SPARQL::SPARQL(url = "http://statistics.data.gov.uk/sparql",
+                   query = query, ...)$results},
+    error = function(e) stop(paste("The ONS SPARQL query returned an error:", e, sep = "\n "))
+  )
 }

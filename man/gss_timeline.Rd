@@ -10,7 +10,7 @@ gss_timeline(
   gss_codes = NULL,
   startdate = NULL,
   enddate = NULL,
-  plot = TRUE,
+  plot = "line",
   sankey_scale = "log",
   include_changeorder = FALSE,
   return_list = FALSE
@@ -42,14 +42,19 @@ command, editing, and passing to the package's
 \code{plot_gss_timeline_line()} or \code{plot_gss_timeline_sankey()}
 functions.}
 
+\item{sankey_scale}{Either "linear" or "log". Whether to scale flows in
+output Sankey diagrams by their values or the logarithm of their values.
+(Note that nodes won't be proportional to total flows).}
+
 \item{include_changeorder}{Logical. If TRUE the output contains two
 additional columns, \code{changeorder} and \code{changeordertitle}. These
 give codes and titles for the legal workings that create and terminate the
-geographies (and therefore potentially more rows of output than when the
-parameter is set to FALSE). They're not included by default because the
-change order names are not unique in the database, and one change order may
-have several slightly varying titles (see the examples), splitting up
-changes that ought to be considered as one.}
+geographies (and therefore potentially more output rows than when the
+parameter is set to FALSE since several orders can come into effect on the
+same date). They're not included by default because the change order names
+are not unique in the database, and one change order may have several
+slightly varying titles (see the examples), splitting up changes that ought
+to be considered as one.}
 
 \item{return_list}{Logical. By default the function returns the wrangled
 output from the query as an easy-to-use data frame. For debugging and
@@ -57,15 +62,11 @@ customisation set this to TRUE and instead return a list with four
 elements: \code{query} containing the SPARQL query sent to the ONS servers.
 Re-run the query by passing it to \code{query_ons()}, or print and inspect
 it with \code{cat()}. The query's response is stored as \code{response}.
-The wrangled output is stored as \code{return}, and is what the function
-returns when \code{return_list} is false. The visualisation produced when
-\code{plot} is not NA the plot is stored as \code{plot}. If \code{plot} is
-\code{"sankey"} then \code{sankey_data} is returned as a list with a
-\code{nodes} and a \code{links} element.}
-
-\item{sankeyscale}{Either "linear" or "log". Whether to scale flows in output
-Sankey diagrams by their values or the logarithm of their values. (Note
-that nodes won't be proportional to total flows).}
+The wrangled output is stored as \code{return} - this is what the function
+returns when \code{return_list} is FALSE. The visualisation produced when
+\code{plot} is not NULL is stored as \code{plot}. If the \code{plot}
+parameter is \code{"sankey"} then \code{sankey_data} is returned as a list
+with a \code{nodes} and a \code{links} element used in the Sankey diagram.}
 }
 \value{
 Data frame with XXXXXX, plot XXXXXXX

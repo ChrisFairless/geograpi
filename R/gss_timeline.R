@@ -68,6 +68,8 @@
 #' @import dplyr
 #' @import ggplot2
 #' @import assertthat
+#'
+#' @export
 
 # TODO think about splitting this into a query and a wrangle function that users can run separately
 
@@ -345,14 +347,14 @@ gss_timeline <- function(resolution = c("OA", "LSOA", "MSOA", "WARD", "LAD"),
     select(-relevant)
 
   if(return_list) {
-    return <- list(
+    response <- list(
       query = full_query,
       response = query_response,
       return = response,
       plot = outplot
     )
     if(!is.null(plot) && plot == "sankey") {
-      return$sankey_data <- list(nodes = nodes, links = links)
+      response$sankey_data <- list(nodes = nodes, links = links)
     }
   }
 
