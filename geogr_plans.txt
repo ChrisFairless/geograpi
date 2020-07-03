@@ -1,0 +1,46 @@
+geogr roadmap
+
+v0.1: informations
+
+functions:
+- gss_lookup
+- gss_timeline
+- gss_identify_vintage
+- gss_map
+- gss_name (adds names to codes)
+
+resolutions:
+- OA/LSOA/MSOA
+- borough and local authority (best fit)
+- ward (best fit)
+- other resolutions?
+- postcode
+
+geogr.db
+- OA/LSOA/MSOA/borough/country?
+- ward, postcode
+- shapefiles
+- mechanism to selectively download and an option in functions to do it? or to use the api and warn
+
+v0.2: mapping
+- join to geographies
+
+v0.3: conversions
+convert between geographies:
+	- method: best fit (where available)
+	- method: dis/reaggregation from OA
+	- method: shapefiles
+
+geogr.db:
+best fit OA to everything database
+
+
+
+
+TODO
+- timeline: consider returning data for each queried geography when count is < e.g. 500
+- yes, want to be able to query individual mappings, e.g. how did we get here: which changes backwards and forwards lead to a particular date (i.e. how to map to a particular vintage)
+- update gss_identify_vintage to return a list of invalid gss codes, or a data frame of all codes' start and end dates
+- find ou why it can't hand old retired gss_codes (as in the recode function) or the new 2020 ones
+
+need to find out if data is stored as factors in databases (or similar). i suspect it is

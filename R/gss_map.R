@@ -82,14 +82,14 @@ gss_map <- function(data,
   # Plot the results
   # ===================
 
-
-
   if(nrow(response) == 0) {
     warning("No results found in gss_lookup, returning NULL")
     return(NULL)
   }
 
-  leaflet(geometries)
+  leaflet(geometries[[1]]) %>%
+    addTiles() %>%
+    addPolygons()
 
 
 
